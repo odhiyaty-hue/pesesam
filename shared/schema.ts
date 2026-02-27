@@ -3,11 +3,11 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey(), // Supabase auth user UUID
-  email: text("email").notNull().unique(),
+  id: serial("id").primaryKey(),
+  email: text("email").unique(),
   role: text("role").notNull().default("player"), // "admin" or "player"
-  realName: text("real_name"),
-  ingameName: text("ingame_name"),
+  realName: text("real_name").notNull(),
+  ingameName: text("ingame_name").notNull(),
   avatarUrl: text("avatar_url"),
 });
 
@@ -22,16 +22,16 @@ export const tournaments = pgTable("tournaments", {
 
 export const participants = pgTable("participants", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id),
   tournamentId: integer("tournament_id").notNull().references(() => tournaments.id),
 });
 
 export const matches = pgTable("matches", {
   id: serial("id").primaryKey(),
   tournamentId: integer("tournament_id").notNull().references(() => tournaments.id),
-  player1Id: varchar("player1_id").references(() => users.id), // nullable for TBD
-  player2Id: varchar("player2_id").references(() => users.id), // nullable for TBD
-  winnerId: varchar("winner_id").references(() => users.id),
+  player1Id: integer("player1_id").references(() => users.id), // nullable for TBD
+  player2Id: integer("player2_id").references(() => users.id), // nullable for TBD
+  winnerId: integer("winner_id").references(() => users.id),
   status: text("status").notNull().default("pending"), // "pending", "played", "validated"
   round: integer("round").notNull(),
 });
@@ -39,12 +39,12 @@ export const matches = pgTable("matches", {
 export const results = pgTable("results", {
   id: serial("id").primaryKey(),
   matchId: integer("match_id").notNull().references(() => matches.id),
-  uploadedBy: varchar("uploaded_by").notNull().references(() => users.id),
+  uploadedBy: integer("uploaded_by").notNull().references(() => users.id),
   screenshotUrl: text("screenshot_url").notNull(),
 });
 
 // Zod schemas
-export const insertUserSchema = createInsertSchema(users);
+export const insertUserSchema = createInsertSchema(users).omit({ id: true });
 export const insertTournamentSchema = createInsertSchema(tournaments).omit({ id: true });
 export const insertParticipantSchema = createInsertSchema(participants).omit({ id: true });
 export const insertMatchSchema = createInsertSchema(matches).omit({ id: true });

@@ -22,18 +22,11 @@ export default function Home() {
 
         <div className="flex flex-col sm:flex-row gap-4">
           <Link 
-            href="/tournaments"
+            href="/register"
             className="px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
           >
             <Trophy className="w-5 h-5" />
-            Find Tournaments
-          </Link>
-          <Link 
-            href="/auth"
-            className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold shadow-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
-          >
-            Create Account
-            <ChevronRight className="w-5 h-5" />
+            Register Now
           </Link>
         </div>
       </div>

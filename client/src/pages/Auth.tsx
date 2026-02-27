@@ -22,7 +22,7 @@ export default function Auth() {
 
     try {
       let avatarUrl = "";
-      if (!isLogin && avatar) {
+      if (avatar) {
         const formData = new FormData();
         formData.append("image", avatar);
         const uploadRes = await fetch("/api/upload", {
@@ -33,28 +33,26 @@ export default function Auth() {
         avatarUrl = uploadData.url;
       }
 
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        setLocation("/tournaments");
-      } else {
-        const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
-        if (signUpError) throw signUpError;
-        if (data.user) {
-          await fetch("/api/users/sync", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: data.user.id,
-              email,
-              realName,
-              ingameName,
-              avatarUrl,
-            }),
-          });
-        }
-        setLocation("/tournaments");
+      const res = await fetch("/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          realName,
+          ingameName,
+          avatarUrl,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Registration failed");
       }
+
+      const data = await res.json();
+      // Store user info in localStorage for this "session"
+      localStorage.setItem("tournament_user", JSON.stringify(data.user));
+      
+      setLocation(`/tournaments/${data.participant.tournamentId}`);
     } catch (err: any) {
       setError(err.message || "An error occurred");
     } finally {
@@ -71,10 +69,10 @@ export default function Auth() {
               <Swords className="w-8 h-8 text-primary" />
             </div>
             <h2 className="text-3xl font-display font-bold text-white text-center">
-              {isLogin ? "Welcome Back" : "Join the Arena"}
+              Tournament Registration
             </h2>
             <p className="text-muted-foreground mt-2 text-center">
-              {isLogin ? "Enter your credentials to access your account." : "Create an account to start competing."}
+              Enter your details to join the tournament.
             </p>
           </div>
 
@@ -87,64 +85,37 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-white mb-2">Real Name</label>
               <input 
-                type="email" 
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                type="text" 
+                value={realName}
+                onChange={e => setRealName(e.target.value)}
                 required
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                placeholder="champion@example.com"
+                placeholder="Your Name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Password</label>
+              <label className="block text-sm font-medium text-white mb-2">In-Game Name</label>
               <input 
-                type="password" 
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                type="text" 
+                value={ingameName}
+                onChange={e => setIngameName(e.target.value)}
                 required
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                placeholder="••••••••"
+                placeholder="eFootball Name"
               />
             </div>
-
-            {!isLogin && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">Real Name</label>
-                  <input 
-                    type="text" 
-                    value={realName}
-                    onChange={e => setRealName(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                    placeholder="Your Name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">In-Game Name</label>
-                  <input 
-                    type="text" 
-                    value={ingameName}
-                    onChange={e => setIngameName(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                    placeholder="eFootball Name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">Personal Photo</label>
-                  <input 
-                    type="file" 
-                    onChange={e => setAvatar(e.target.files?.[0] || null)}
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary transition-all"
-                    accept="image/*"
-                  />
-                </div>
-              </>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Personal Photo</label>
+              <input 
+                type="file" 
+                onChange={e => setAvatar(e.target.files?.[0] || null)}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary transition-all"
+                accept="image/*"
+              />
+            </div>
 
             <button 
               type="submit" 
@@ -152,18 +123,12 @@ export default function Auth() {
               className="w-full py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
             >
               {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-              {isLogin ? "Sign In" : "Create Account"}
+              Register for Tournament
             </button>
           </form>
 
           <div className="mt-8 text-center text-sm text-muted-foreground border-t border-white/10 pt-6">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button 
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-primary font-bold hover:underline"
-            >
-              {isLogin ? "Sign Up" : "Sign In"}
-            </button>
+            Admin access required for tournament management.
           </div>
         </div>
       </div>

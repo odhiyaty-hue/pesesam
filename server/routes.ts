@@ -13,23 +13,42 @@ export async function registerRoutes(
 ): Promise<Server> {
   
   // Users
-  app.get(api.users.me.path, async (req, res) => {
-    res.status(401).json({ message: "Use Supabase client on frontend" });
-  });
-
-  app.post(api.users.sync.path, async (req, res) => {
+  app.post(api.users.register.path, async (req, res) => {
     try {
-      const input = api.users.sync.input.parse(req.body);
-      const user = await storage.upsertUser({ 
-        id: input.id, 
-        email: input.email,
+      const input = api.users.register.input.parse(req.body);
+      
+      const latestTournament = await storage.getLatestTournament();
+      if (!latestTournament) {
+        return res.status(404).json({ message: "No tournament found. Please create one in admin." });
+      }
+
+      if (latestTournament.status !== "open") {
+        return res.status(400).json({ message: "Registration is closed for this tournament." });
+      }
+
+      const participants = await storage.getParticipants(latestTournament.id);
+      if (participants.length >= latestTournament.maxPlayers) {
+        return res.status(400).json({ message: "Tournament is full." });
+      }
+
+      const user = await storage.createUser({
         realName: input.realName,
         ingameName: input.ingameName,
         avatarUrl: input.avatarUrl
       });
-      res.json(user);
+
+      const participant = await storage.createParticipant({
+        userId: user.id,
+        tournamentId: latestTournament.id
+      });
+
+      res.json({ user, participant });
     } catch (e) {
-      res.status(400).json({ message: "Invalid input" });
+      if (e instanceof z.ZodError) {
+        res.status(400).json({ message: e.errors[0].message });
+      } else {
+        res.status(500).json({ message: "Internal Error" });
+      }
     }
   });
 
@@ -64,23 +83,7 @@ export async function registerRoutes(
   });
 
   app.post(api.tournaments.join.path, async (req, res) => {
-    const tId = Number(req.params.id);
-    const userId = req.headers.authorization?.replace('Bearer ', ''); // Supabase token or ID
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
-
-    // Assuming we sync'd the user, we should use the actual user ID.
-    // For simplicity, we just use the token/ID from frontend directly if passed as header
-    // In a production app, verify the Supabase JWT.
-
-    const t = await storage.getTournament(tId);
-    if (!t) return res.status(404).json({ message: "Not found" });
-    if (t.status !== "open") return res.status(400).json({ message: "Tournament is not open" });
-
-    const parts = await storage.getParticipants(tId);
-    if (parts.length >= t.maxPlayers) return res.status(400).json({ message: "Tournament is full" });
-
-    const p = await storage.createParticipant({ tournamentId: tId, userId });
-    res.json(p);
+    res.status(400).json({ message: "Use register endpoint instead" });
   });
 
   app.post(api.tournaments.generateBracket.path, async (req, res) => {

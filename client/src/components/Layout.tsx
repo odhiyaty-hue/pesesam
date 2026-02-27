@@ -52,31 +52,13 @@ export function Layout({ children }: { children: ReactNode }) {
             </nav>
 
             <div className="flex items-center gap-4">
-              {dbUser ? (
-                <div className="flex items-center gap-4">
-                  <div className="hidden sm:flex flex-col items-end">
-                    <span className="text-sm font-medium text-white">{dbUser.email}</span>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
-                      {dbUser.role}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => signOut()}
-                    className="p-2.5 rounded-xl bg-white/5 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-colors"
-                    title="Log Out"
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </button>
-                </div>
-              ) : (
-                <Link 
-                  href="/auth"
-                  className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
-                >
-                  <UserIcon className="w-4 h-4" />
-                  Sign In
-                </Link>
-              )}
+              <Link 
+                href="/admin"
+                className="p-2.5 rounded-xl bg-white/5 text-muted-foreground hover:bg-primary/20 hover:text-primary transition-colors"
+                title="Admin"
+              >
+                <ShieldAlert className="w-5 h-5" />
+              </Link>
             </div>
           </div>
         </div>

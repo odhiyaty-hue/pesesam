@@ -12,26 +12,16 @@ export const errorSchemas = {
 
 export const api = {
   users: {
-    me: {
-      method: "GET" as const,
-      path: "/api/users/me" as const,
-      responses: {
-        200: z.custom<typeof users.$inferSelect>(),
-        401: errorSchemas.unauthorized,
-      }
-    },
-    sync: {
+    register: {
       method: "POST" as const,
-      path: "/api/users/sync" as const,
+      path: "/api/users/register" as const,
       input: z.object({
-        id: z.string(),
-        email: z.string(),
-        realName: z.string().optional(),
-        ingameName: z.string().optional(),
+        realName: z.string(),
+        ingameName: z.string(),
         avatarUrl: z.string().optional(),
       }),
       responses: {
-        200: z.custom<typeof users.$inferSelect>(),
+        200: z.object({ user: z.custom<typeof users.$inferSelect>(), participant: z.custom<typeof participants.$inferSelect>() }),
       }
     }
   },

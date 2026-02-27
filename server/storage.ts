@@ -3,16 +3,17 @@ import {
   users, tournaments, participants, matches, results,
   type User, type Tournament, type Participant, type Match, type Result
 } from "@shared/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: { id: string; email: string; realName?: string; ingameName?: string; avatarUrl?: string }): Promise<User>;
-
+  getUser(id: number): Promise<User | undefined>;
+  createUser(user: { realName: string; ingameName: string; avatarUrl?: string }): Promise<User>;
+  
   // Tournaments
   getTournaments(): Promise<Tournament[]>;
   getTournament(id: number): Promise<Tournament | undefined>;
+  getLatestTournament(): Promise<Tournament | undefined>;
   createTournament(tournament: Omit<Tournament, "id">): Promise<Tournament>;
   updateTournament(id: number, status: string): Promise<Tournament>;
   
@@ -33,29 +34,18 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: string): Promise<User | undefined> {
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
   
-  async upsertUser(data: { id: string; email: string; realName?: string; ingameName?: string; avatarUrl?: string }): Promise<User> {
+  async createUser(data: { realName: string; ingameName: string; avatarUrl?: string }): Promise<User> {
     const [user] = await db.insert(users)
       .values({ 
-        id: data.id, 
-        email: data.email, 
         role: "player",
         realName: data.realName,
         ingameName: data.ingameName,
         avatarUrl: data.avatarUrl
-      })
-      .onConflictDoUpdate({ 
-        target: users.id, 
-        set: { 
-          email: data.email,
-          realName: data.realName,
-          ingameName: data.ingameName,
-          avatarUrl: data.avatarUrl
-        } 
       })
       .returning();
     return user;
@@ -67,6 +57,11 @@ export class DatabaseStorage implements IStorage {
 
   async getTournament(id: number): Promise<Tournament | undefined> {
     const [tournament] = await db.select().from(tournaments).where(eq(tournaments.id, id));
+    return tournament;
+  }
+
+  async getLatestTournament(): Promise<Tournament | undefined> {
+    const [tournament] = await db.select().from(tournaments).orderBy(desc(tournaments.id)).limit(1);
     return tournament;
   }
 
