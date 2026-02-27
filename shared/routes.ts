@@ -26,6 +26,9 @@ export const api = {
       input: z.object({
         id: z.string(),
         email: z.string(),
+        realName: z.string().optional(),
+        ingameName: z.string().optional(),
+        avatarUrl: z.string().optional(),
       }),
       responses: {
         200: z.custom<typeof users.$inferSelect>(),

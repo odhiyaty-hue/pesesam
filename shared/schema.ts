@@ -6,6 +6,9 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey(), // Supabase auth user UUID
   email: text("email").notNull().unique(),
   role: text("role").notNull().default("player"), // "admin" or "player"
+  realName: text("real_name"),
+  ingameName: text("ingame_name"),
+  avatarUrl: text("avatar_url"),
 });
 
 export const tournaments = pgTable("tournaments", {
@@ -14,6 +17,7 @@ export const tournaments = pgTable("tournaments", {
   maxPlayers: integer("max_players").notNull(),
   status: text("status").notNull().default("open"), // "open", "full", "in_progress", "completed"
   startDate: timestamp("start_date"),
+  type: text("type").notNull().default("bracket"), // "bracket" or "group_stage"
 });
 
 export const participants = pgTable("participants", {

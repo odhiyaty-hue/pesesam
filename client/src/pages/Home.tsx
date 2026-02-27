@@ -12,8 +12,8 @@ export default function Home() {
         </div>
         
         <h1 className="text-5xl md:text-7xl font-display font-extrabold tracking-tight mb-6">
-          Prove You Are <br className="hidden md:block" />
-          <span className="text-gradient">The Champion.</span>
+          WELCOME TO ESAM E FOOTBALL TOURNAMENT <br className="hidden md:block" />
+          <span className="text-gradient">ARE U READY?</span>
         </h1>
         
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12">

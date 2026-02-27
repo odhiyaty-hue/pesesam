@@ -20,7 +20,13 @@ export async function registerRoutes(
   app.post(api.users.sync.path, async (req, res) => {
     try {
       const input = api.users.sync.input.parse(req.body);
-      const user = await storage.upsertUser({ id: input.id, email: input.email });
+      const user = await storage.upsertUser({ 
+        id: input.id, 
+        email: input.email,
+        realName: input.realName,
+        ingameName: input.ingameName,
+        avatarUrl: input.avatarUrl
+      });
       res.json(user);
     } catch (e) {
       res.status(400).json({ message: "Invalid input" });
@@ -79,25 +85,75 @@ export async function registerRoutes(
 
   app.post(api.tournaments.generateBracket.path, async (req, res) => {
     const tId = Number(req.params.id);
+    const tournament = await storage.getTournament(tId);
+    if (!tournament) return res.status(404).json({ message: "Tournament not found" });
+
     const parts = await storage.getParticipants(tId);
-    
     const shuffled = [...parts].sort(() => 0.5 - Math.random());
-    const matchesToCreate = [];
-    for (let i = 0; i < shuffled.length; i += 2) {
-      if (i + 1 < shuffled.length) {
-        matchesToCreate.push({
-          tournamentId: tId,
-          player1Id: shuffled[i].userId,
-          player2Id: shuffled[i + 1].userId,
-          winnerId: null,
-          status: "pending",
-          round: 1
-        });
+
+    if (tournament.type === "group_stage") {
+      // Group stage logic: 4 players per group
+      const groups = [];
+      for (let i = 0; i < shuffled.length; i += 4) {
+        groups.push(shuffled.slice(i, i + 4));
       }
+
+      const matchesToCreate = [];
+      for (const group of groups) {
+        for (let i = 0; i < group.length; i++) {
+          for (let j = i + 1; j < group.length; j++) {
+            // Home and Away for group stage
+            matchesToCreate.push({
+              tournamentId: tId,
+              player1Id: group[i].userId,
+              player2Id: group[j].userId,
+              winnerId: null,
+              status: "pending",
+              round: 1
+            });
+            matchesToCreate.push({
+              tournamentId: tId,
+              player1Id: group[j].userId,
+              player2Id: group[i].userId,
+              winnerId: null,
+              status: "pending",
+              round: 1
+            });
+          }
+        }
+      }
+      const createdMatches = await storage.createMatches(matchesToCreate);
+      await storage.updateTournament(tId, "in_progress");
+      return res.json(createdMatches);
+    } else {
+      // Standard Bracket (Single Elimination) with Home/Away
+      const matchesToCreate = [];
+      for (let i = 0; i < shuffled.length; i += 2) {
+        if (i + 1 < shuffled.length) {
+          // Home
+          matchesToCreate.push({
+            tournamentId: tId,
+            player1Id: shuffled[i].userId,
+            player2Id: shuffled[i + 1].userId,
+            winnerId: null,
+            status: "pending",
+            round: 1
+          });
+          // Away
+          matchesToCreate.push({
+            tournamentId: tId,
+            player1Id: shuffled[i + 1].userId,
+            player2Id: shuffled[i].userId,
+            winnerId: null,
+            status: "pending",
+            round: 1
+          });
+        }
+      }
+      const createdMatches = await storage.createMatches(matchesToCreate);
+      await storage.updateTournament(tId, "in_progress");
+      return res.json(createdMatches);
     }
-    const createdMatches = await storage.createMatches(matchesToCreate);
-    await storage.updateTournament(tId, "in_progress");
-    res.json(createdMatches);
   });
 
   // Matches

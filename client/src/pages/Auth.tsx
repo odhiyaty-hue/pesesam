@@ -9,6 +9,9 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [realName, setRealName] = useState("");
+  const [ingameName, setIngameName] = useState("");
+  const [avatar, setAvatar] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,13 +21,38 @@ export default function Auth() {
     setError(null);
 
     try {
+      let avatarUrl = "";
+      if (!isLogin && avatar) {
+        const formData = new FormData();
+        formData.append("image", avatar);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+        avatarUrl = uploadData.url;
+      }
+
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         setLocation("/tournaments");
       } else {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
+        const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+        if (signUpError) throw signUpError;
+        if (data.user) {
+          await fetch("/api/users/sync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: data.user.id,
+              email,
+              realName,
+              ingameName,
+              avatarUrl,
+            }),
+          });
+        }
         setLocation("/tournaments");
       }
     } catch (err: any) {
@@ -80,6 +108,43 @@ export default function Auth() {
                 placeholder="••••••••"
               />
             </div>
+
+            {!isLogin && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">Real Name</label>
+                  <input 
+                    type="text" 
+                    value={realName}
+                    onChange={e => setRealName(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="Your Name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">In-Game Name</label>
+                  <input 
+                    type="text" 
+                    value={ingameName}
+                    onChange={e => setIngameName(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="eFootball Name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">Personal Photo</label>
+                  <input 
+                    type="file" 
+                    onChange={e => setAvatar(e.target.files?.[0] || null)}
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary transition-all"
+                    accept="image/*"
+                  />
+                </div>
+              </>
+            )}
 
             <button 
               type="submit" 

@@ -8,8 +8,8 @@ import { eq, and } from "drizzle-orm";
 export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: { id: string; email: string }): Promise<User>;
-  
+  upsertUser(user: { id: string; email: string; realName?: string; ingameName?: string; avatarUrl?: string }): Promise<User>;
+
   // Tournaments
   getTournaments(): Promise<Tournament[]>;
   getTournament(id: number): Promise<Tournament | undefined>;
@@ -38,10 +38,25 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
   
-  async upsertUser(data: { id: string; email: string }): Promise<User> {
+  async upsertUser(data: { id: string; email: string; realName?: string; ingameName?: string; avatarUrl?: string }): Promise<User> {
     const [user] = await db.insert(users)
-      .values({ id: data.id, email: data.email, role: "player" })
-      .onConflictDoUpdate({ target: users.id, set: { email: data.email } })
+      .values({ 
+        id: data.id, 
+        email: data.email, 
+        role: "player",
+        realName: data.realName,
+        ingameName: data.ingameName,
+        avatarUrl: data.avatarUrl
+      })
+      .onConflictDoUpdate({ 
+        target: users.id, 
+        set: { 
+          email: data.email,
+          realName: data.realName,
+          ingameName: data.ingameName,
+          avatarUrl: data.avatarUrl
+        } 
+      })
       .returning();
     return user;
   }
