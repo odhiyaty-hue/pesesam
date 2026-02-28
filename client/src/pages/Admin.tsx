@@ -38,45 +38,45 @@ export default function Admin() {
         <div>
           <h1 className="text-4xl font-display font-bold text-white flex items-center gap-3">
             <ShieldAlert className="w-10 h-10 text-primary" />
-            Admin Dashboard
+            لوحة التحكم
           </h1>
-          <p className="text-muted-foreground mt-2">Manage tournaments, brackets, and validate results.</p>
+          <p className="text-muted-foreground mt-2">إدارة البطولات والمواجهات والتحقق من النتائج.</p>
         </div>
         <button 
           onClick={() => setIsCreating(!isCreating)}
           className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 transition-all flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          {isCreating ? "Cancel" : "New Tournament"}
+          {isCreating ? "إلغاء" : "بطولة جديدة"}
         </button>
       </div>
 
       {isCreating && (
         <div className="glass-card p-6 md:p-8 rounded-2xl mb-10 border border-primary/30 animate-in-slide">
-          <h3 className="text-xl font-bold text-white mb-6">Create Tournament</h3>
+          <h3 className="text-xl font-bold text-white mb-6">إنشاء بطولة</h3>
           <form onSubmit={handleCreate} className="flex flex-col md:flex-row gap-4 items-end">
             <div className="flex-1 w-full">
-              <label className="block text-sm font-medium text-white mb-2">Tournament Name</label>
+              <label className="block text-sm font-medium text-white mb-2">اسم البطولة</label>
               <input 
                 type="text" 
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                placeholder="e.g. Summer Championship 2024"
+                placeholder="مثال: بطولة الصيف 2024"
               />
             </div>
             <div className="w-full md:w-48">
-              <label className="block text-sm font-medium text-white mb-2">Max Players</label>
+              <label className="block text-sm font-medium text-white mb-2">أقصى عدد لاعبين</label>
               <select 
                 value={maxPlayers}
                 onChange={e => setMaxPlayers(parseInt(e.target.value))}
                 className="w-full px-4 py-3 rounded-xl bg-card border border-white/10 text-white focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
               >
-                <option value={4}>4 Players</option>
-                <option value={8}>8 Players</option>
-                <option value={16}>16 Players</option>
-                <option value={32}>32 Players</option>
+                <option value={4}>4 لاعبين</option>
+                <option value={8}>8 لاعبين</option>
+                <option value={16}>16 لاعبين</option>
+                <option value={32}>32 لاعبين</option>
               </select>
             </div>
             <button 
@@ -84,14 +84,14 @@ export default function Admin() {
               disabled={createMutation.isPending}
               className="w-full md:w-auto px-8 py-3 h-[50px] rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-all disabled:opacity-50"
             >
-              {createMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Create"}
+              {createMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "إنشاء"}
             </button>
           </form>
         </div>
       )}
 
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-white mb-4">Manage Tournaments</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">إدارة البطولات</h2>
         {isLoading ? (
           <div className="py-20 flex justify-center"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
         ) : tournaments?.map(t => (
@@ -118,10 +118,12 @@ function AdminTournamentCard({ tournament }: { tournament: any }) {
               tournament.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-400' :
               'bg-white/10 text-white/60'
             }`}>
-              {tournament.status.replace('_', ' ')}
+              {tournament.status === 'open' ? 'مفتوح' : 
+               tournament.status === 'in_progress' ? 'قيد التنفيذ' : 
+               tournament.status === 'completed' ? 'مكتمل' : tournament.status}
             </span>
             <span className="text-sm text-muted-foreground flex items-center gap-1">
-              <Users className="w-4 h-4" /> Max {tournament.maxPlayers}
+              <Users className="w-4 h-4" /> الأقصى {tournament.maxPlayers}
             </span>
           </div>
           <h3 className="text-2xl font-bold text-white">{tournament.name}</h3>
@@ -134,15 +136,15 @@ function AdminTournamentCard({ tournament }: { tournament: any }) {
               disabled={generateMutation.isPending}
               className="flex-1 md:flex-none px-6 py-2.5 rounded-xl border border-primary/50 text-primary font-semibold hover:bg-primary/10 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {generateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
-              Generate Bracket
+              {generateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4 rotate-180" />}
+              توليد المواجهات
             </button>
           )}
           <Link 
             href={`/tournaments/${tournament.id}`}
             className="flex-1 md:flex-none px-6 py-2.5 rounded-xl bg-white/10 text-white font-semibold hover:bg-white/20 transition-colors text-center"
           >
-            View
+            عرض
           </Link>
         </div>
       </div>
@@ -150,7 +152,7 @@ function AdminTournamentCard({ tournament }: { tournament: any }) {
       {pendingValidation && pendingValidation.length > 0 && (
         <div className="p-6 border-t border-white/5 bg-black/20">
           <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-yellow-400" /> Action Required: Pending Matches
+            <ShieldCheck className="w-4 h-4 text-yellow-400" /> إجراء مطلوب: مباريات معلقة
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {pendingValidation.map(match => (
@@ -170,28 +172,28 @@ function AdminMatchCard({ match }: { match: any }) {
     <div className="bg-card border border-white/10 rounded-xl p-4 flex flex-col justify-between">
       <div>
         <div className="flex justify-between items-center mb-3">
-          <span className="text-xs text-muted-foreground font-bold">Match #{match.id} - Round {match.round}</span>
-          <Link href={`/matches/${match.id}`} className="text-xs text-primary hover:underline">View Evidence</Link>
+          <span className="text-xs text-muted-foreground font-bold">مباراة #{match.id} - الجولة {match.round}</span>
+          <Link href={`/matches/${match.id}`} className="text-xs text-primary hover:underline">عرض الإثبات</Link>
         </div>
         <div className="space-y-2 mb-4">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-white/80">P1: {match.player1Id?.substring(0,6)}</span>
+            <span className="text-sm text-white/80">لاعب 1: {match.player1Id?.substring(0,6)}</span>
             <button 
               onClick={() => confirmMutation.mutate(match.player1Id)}
               disabled={confirmMutation.isPending}
               className="px-3 py-1 text-xs font-bold rounded bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors disabled:opacity-50"
             >
-              Set Winner
+              تحديد كفائز
             </button>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-white/80">P2: {match.player2Id?.substring(0,6)}</span>
+            <span className="text-sm text-white/80">لاعب 2: {match.player2Id?.substring(0,6)}</span>
             <button 
               onClick={() => confirmMutation.mutate(match.player2Id)}
               disabled={confirmMutation.isPending}
               className="px-3 py-1 text-xs font-bold rounded bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors disabled:opacity-50"
             >
-              Set Winner
+              تحديد كفائز
             </button>
           </div>
         </div>

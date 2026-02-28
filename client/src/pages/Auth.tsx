@@ -69,10 +69,10 @@ export default function Auth() {
               <Swords className="w-8 h-8 text-primary" />
             </div>
             <h2 className="text-3xl font-display font-bold text-white text-center">
-              Tournament Registration
+              التسجيل في البطولة
             </h2>
             <p className="text-muted-foreground mt-2 text-center">
-              Enter your details to join the tournament.
+              أدخل تفاصيلك للانضمام إلى البطولة.
             </p>
           </div>
 
@@ -85,29 +85,29 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Real Name</label>
+              <label className="block text-sm font-medium text-white mb-2">الاسم الحقيقي</label>
               <input 
                 type="text" 
                 value={realName}
                 onChange={e => setRealName(e.target.value)}
                 required
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                placeholder="Your Name"
+                placeholder="اسمك هنا"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white mb-2">In-Game Name</label>
+              <label className="block text-sm font-medium text-white mb-2">اسم المستخدم في اللعبة</label>
               <input 
                 type="text" 
                 value={ingameName}
                 onChange={e => setIngameName(e.target.value)}
                 required
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                placeholder="eFootball Name"
+                placeholder="اسم eFootball الخاص بك"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Personal Photo</label>
+              <label className="block text-sm font-medium text-white mb-2">الصورة الشخصية</label>
               <input 
                 type="file" 
                 onChange={e => setAvatar(e.target.files?.[0] || null)}
@@ -123,12 +123,12 @@ export default function Auth() {
               className="w-full py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
             >
               {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-              Register for Tournament
+              سجل في البطولة
             </button>
           </form>
 
           <div className="mt-8 text-center text-sm text-muted-foreground border-t border-white/10 pt-6">
-            Admin access required for tournament management.
+            وصول المسؤول مطلوب لإدارة البطولة.
           </div>
         </div>
       </div>

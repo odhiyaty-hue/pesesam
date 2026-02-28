@@ -25,7 +25,7 @@ export default function MatchDetails() {
     );
   }
 
-  if (!match) return <Layout><div className="text-center py-20"><h2 className="text-2xl">Match not found</h2></div></Layout>;
+  if (!match) return <Layout><div className="text-center py-20"><h2 className="text-2xl">المباراة غير موجودة</h2></div></Layout>;
 
   const isParticipant = dbUser && (match.player1Id === dbUser.id || match.player2Id === dbUser.id);
   const hasUploaded = results?.some(r => r.uploadedBy === dbUser?.id);
@@ -41,8 +41,8 @@ export default function MatchDetails() {
   return (
     <Layout>
       <Link href={`/tournaments/${match.tournamentId}`} className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-white transition-colors mb-6">
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Bracket
+        <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
+        العودة للمواجهات
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -55,7 +55,9 @@ export default function MatchDetails() {
               match.status === 'played' ? 'bg-yellow-500/20 text-yellow-400' :
               'bg-white/10 text-white/60'
             }`}>
-              {match.status} Match
+              {match.status === 'validated' ? 'مباراة مؤكدة' : 
+               match.status === 'played' ? 'مباراة ملعوبة' : 
+               match.status === 'pending' ? 'مباراة معلقة' : match.status}
             </span>
 
             <div className="flex items-center justify-center gap-8 md:gap-16">
@@ -63,38 +65,38 @@ export default function MatchDetails() {
                 <div className="w-20 h-20 bg-slate-800 rounded-full mb-4 flex items-center justify-center border-4 border-slate-700">
                   <span className="text-2xl font-bold">{match.player1Id ? 'P1' : '?'}</span>
                 </div>
-                <span className="text-lg font-bold text-white">Player {match.player1Id?.substring(0,6) || "TBD"}</span>
-                {match.winnerId === match.player1Id && <span className="text-primary font-bold mt-2 flex items-center gap-1"><Trophy className="w-4 h-4" /> Winner</span>}
+                <span className="text-lg font-bold text-white">لاعب {match.player1Id?.substring(0,6) || "قريباً"}</span>
+                {match.winnerId === match.player1Id && <span className="text-primary font-bold mt-2 flex items-center gap-1"><Trophy className="w-4 h-4" /> الفائز</span>}
               </div>
 
-              <div className="text-4xl font-display font-black text-muted-foreground italic">VS</div>
+              <div className="text-4xl font-display font-black text-muted-foreground italic">ضد</div>
 
               <div className={`flex flex-col items-center p-6 rounded-2xl flex-1 ${match.winnerId === match.player2Id ? 'bg-primary/20 ring-2 ring-primary' : 'bg-white/5'}`}>
                 <div className="w-20 h-20 bg-slate-800 rounded-full mb-4 flex items-center justify-center border-4 border-slate-700">
                   <span className="text-2xl font-bold">{match.player2Id ? 'P2' : '?'}</span>
                 </div>
-                <span className="text-lg font-bold text-white">Player {match.player2Id?.substring(0,6) || "TBD"}</span>
-                {match.winnerId === match.player2Id && <span className="text-primary font-bold mt-2 flex items-center gap-1"><Trophy className="w-4 h-4" /> Winner</span>}
+                <span className="text-lg font-bold text-white">لاعب {match.player2Id?.substring(0,6) || "قريباً"}</span>
+                {match.winnerId === match.player2Id && <span className="text-primary font-bold mt-2 flex items-center gap-1"><Trophy className="w-4 h-4" /> الفائز</span>}
               </div>
             </div>
           </div>
 
           <div>
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><ImageIcon className="w-5 h-5 text-indigo-400" /> Evidence Screenshots</h3>
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><ImageIcon className="w-5 h-5 text-indigo-400" /> لقطات شاشة الإثبات</h3>
             {results?.length === 0 ? (
               <div className="glass-card p-12 rounded-2xl text-center border-dashed border-white/10">
-                <p className="text-muted-foreground">No results uploaded yet.</p>
+                <p className="text-muted-foreground">لم يتم رفع نتائج بعد.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {results?.map(res => (
                   <div key={res.id} className="glass-card rounded-xl overflow-hidden group">
                     <a href={res.screenshotUrl} target="_blank" rel="noopener noreferrer" className="block relative aspect-video bg-black/50">
-                      <img src={res.screenshotUrl} alt="Match result" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                      <img src={res.screenshotUrl} alt="نتيجة المباراة" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                     </a>
                     <div className="p-4 flex items-center gap-2 bg-card">
                       <CheckCircle className="w-4 h-4 text-green-400" />
-                      <span className="text-sm text-muted-foreground">Uploaded by Player {res.uploadedBy.substring(0,6)}</span>
+                      <span className="text-sm text-muted-foreground">تم الرفع بواسطة لاعب {res.uploadedBy.substring(0,6)}</span>
                     </div>
                   </div>
                 ))}
@@ -106,8 +108,8 @@ export default function MatchDetails() {
         <div>
           {isParticipant && match.status !== "validated" && !hasUploaded ? (
             <div className="glass-card p-6 rounded-2xl border border-primary/30 sticky top-28">
-              <h3 className="text-xl font-bold mb-2 text-white">Report Result</h3>
-              <p className="text-sm text-muted-foreground mb-6">Upload a clear screenshot showing the final score of the match.</p>
+              <h3 className="text-xl font-bold mb-2 text-white">إبلاغ عن النتيجة</h3>
+              <p className="text-sm text-muted-foreground mb-6">ارفع لقطة شاشة واضحة تظهر النتيجة النهائية للمباراة.</p>
               
               <form onSubmit={handleUpload} className="space-y-4">
                 <label className="block w-full cursor-pointer">
@@ -120,7 +122,7 @@ export default function MatchDetails() {
                     ) : (
                       <div className="text-center p-4">
                         <UploadCloud className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                        <span className="text-sm font-medium text-muted-foreground">Click to select image</span>
+                        <span className="text-sm font-medium text-muted-foreground">اضغط لاختيار صورة</span>
                       </div>
                     )}
                   </div>
@@ -133,7 +135,7 @@ export default function MatchDetails() {
                   className="w-full py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {uploadMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
-                  Upload Evidence
+                  رفع الإثبات
                 </button>
               </form>
             </div>
@@ -141,17 +143,17 @@ export default function MatchDetails() {
             <div className="glass-card p-6 rounded-2xl bg-green-500/10 border border-green-500/30 sticky top-28">
               <div className="flex items-center gap-3 text-green-400 mb-2">
                 <CheckCircle className="w-6 h-6" />
-                <h3 className="text-xl font-bold">Result Submitted</h3>
+                <h3 className="text-xl font-bold">تم إرسال النتيجة</h3>
               </div>
-              <p className="text-sm text-muted-foreground">Your screenshot has been uploaded. An admin will review and confirm the result soon.</p>
+              <p className="text-sm text-muted-foreground">تم رفع لقطة الشاشة الخاصة بك. سيقوم المسؤول بمراجعة وتأكيد النتيجة قريباً.</p>
             </div>
           ) : !isParticipant ? (
             <div className="glass-card p-6 rounded-2xl sticky top-28">
               <div className="flex items-center gap-3 text-muted-foreground mb-4">
                 <ShieldAlert className="w-6 h-6" />
-                <h3 className="text-lg font-bold text-white">Spectator View</h3>
+                <h3 className="text-lg font-bold text-white">عرض للمشاهدين</h3>
               </div>
-              <p className="text-sm">Only participants of this match can upload results.</p>
+              <p className="text-sm">يمكن فقط للمشاركين في هذه المباراة رفع النتائج.</p>
             </div>
           ) : null}
         </div>

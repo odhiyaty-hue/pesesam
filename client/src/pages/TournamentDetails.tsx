@@ -31,9 +31,9 @@ export default function TournamentDetails() {
     return (
       <Layout>
         <div className="text-center py-20">
-          <h2 className="text-2xl font-bold">Tournament not found</h2>
+          <h2 className="text-2xl font-bold">البطولة غير موجودة</h2>
           <Link href="/tournaments" className="text-primary mt-4 inline-block hover:underline">
-            Back to Tournaments
+            العودة للبطولات
           </Link>
         </div>
       </Layout>
@@ -43,8 +43,8 @@ export default function TournamentDetails() {
   return (
     <Layout>
       <Link href="/tournaments" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-white transition-colors mb-6">
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Tournaments
+        <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
+        العودة للبطولات
       </Link>
 
       <div className="glass-card p-8 md:p-10 rounded-3xl mb-10 relative overflow-hidden">
@@ -58,7 +58,9 @@ export default function TournamentDetails() {
                 tournament.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-400' :
                 'bg-white/10 text-white/60'
               }`}>
-                {tournament.status.replace('_', ' ')}
+                {tournament.status === 'open' ? 'مفتوح' : 
+                 tournament.status === 'in_progress' ? 'قيد التنفيذ' : 
+                 tournament.status === 'completed' ? 'مكتمل' : tournament.status}
               </span>
               {tournament.startDate && (
                 <span className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -70,7 +72,7 @@ export default function TournamentDetails() {
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">{tournament.name}</h1>
             <p className="text-muted-foreground flex items-center gap-2 mt-4">
               <Users className="w-5 h-5 text-indigo-400" />
-              Maximum {tournament.maxPlayers} Players
+              الحد الأقصى {tournament.maxPlayers} لاعبين
             </p>
           </div>
 
@@ -81,13 +83,13 @@ export default function TournamentDetails() {
                 disabled={joinMutation.isPending}
                 className="px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 hover:-translate-y-0.5 transition-all disabled:opacity-50 flex items-center gap-2"
               >
-                {joinMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
-                Join Tournament
+                {joinMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5 rotate-180" />}
+                انضم للبطولة
               </button>
             )}
             {!dbUser && tournament.status === "open" && (
               <Link href="/auth" className="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-all">
-                Login to Join
+                سجل الدخول للانضمام
               </Link>
             )}
           </div>
@@ -96,7 +98,7 @@ export default function TournamentDetails() {
 
       <div className="mb-6 flex items-center gap-3">
         <Trophy className="w-6 h-6 text-primary" />
-        <h2 className="text-2xl font-display font-bold">Tournament Bracket</h2>
+        <h2 className="text-2xl font-display font-bold">جدول المواجهات</h2>
       </div>
 
       <div className="glass-card rounded-3xl p-6 min-h-[500px]">

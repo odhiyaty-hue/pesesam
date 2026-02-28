@@ -8,16 +8,16 @@ export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
 
   const navItems = [
-    { path: "/", label: "Home", icon: Home },
-    { path: "/tournaments", label: "Tournaments", icon: Trophy },
+    { path: "/", label: "الرئيسية", icon: Home },
+    { path: "/tournaments", label: "البطولات", icon: Trophy },
   ];
 
   if (dbUser?.role === "admin") {
-    navItems.push({ path: "/admin", label: "Admin Panel", icon: ShieldAlert });
+    navItems.push({ path: "/admin", label: "لوحة التحكم", icon: ShieldAlert });
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" dir="rtl">
       <header className="sticky top-0 z-50 glass-card border-b-0 border-white/5 rounded-none shadow-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
@@ -26,7 +26,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <Swords className="w-6 h-6 text-primary" />
               </div>
               <span className="font-display font-bold text-2xl tracking-tight text-white">
-                eFoot<span className="text-primary">Tourney</span>
+                إي-فوت<span className="text-primary">تورني</span>
               </span>
             </Link>
 
@@ -55,7 +55,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <Link 
                 href="/admin"
                 className="p-2.5 rounded-xl bg-white/5 text-muted-foreground hover:bg-primary/20 hover:text-primary transition-colors"
-                title="Admin"
+                title="لوحة التحكم"
               >
                 <ShieldAlert className="w-5 h-5" />
               </Link>
@@ -70,7 +70,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <footer className="py-8 border-t border-white/5 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground text-sm">
-          &copy; {new Date().getFullYear()} eFootTourney. Built for champions.
+          &copy; {new Date().getFullYear()} إي-فوت تورني. صُنع للأبطال.
         </div>
       </footer>
     </div>

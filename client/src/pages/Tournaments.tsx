@@ -11,8 +11,8 @@ export default function Tournaments() {
     <Layout>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 animate-in">
         <div>
-          <h1 className="text-4xl font-display font-bold text-white tracking-tight">Tournaments</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Find and join active eFootball competitions.</p>
+          <h1 className="text-4xl font-display font-bold text-white tracking-tight">البطولات</h1>
+          <p className="text-muted-foreground mt-2 text-lg">ابحث عن مسابقات eFootball النشطة وانضم إليها.</p>
         </div>
       </div>
 
@@ -23,8 +23,8 @@ export default function Tournaments() {
       ) : tournaments?.length === 0 ? (
         <div className="glass-card p-16 rounded-3xl text-center flex flex-col items-center">
           <Trophy className="w-16 h-16 text-muted-foreground opacity-30 mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">No Tournaments Yet</h3>
-          <p className="text-muted-foreground">Check back later for new competitions.</p>
+          <h3 className="text-xl font-bold text-white mb-2">لا توجد بطولات حالياً</h3>
+          <p className="text-muted-foreground">تحقق لاحقاً من وجود مسابقات جديدة.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -43,7 +43,9 @@ export default function Tournaments() {
                     tournament.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-400' :
                     'bg-white/10 text-white/60'
                   }`}>
-                    {tournament.status.replace('_', ' ')}
+                    {tournament.status === 'open' ? 'مفتوح' : 
+                     tournament.status === 'in_progress' ? 'قيد التنفيذ' : 
+                     tournament.status === 'completed' ? 'مكتمل' : tournament.status}
                   </span>
                 </div>
               </div>
@@ -53,7 +55,7 @@ export default function Tournaments() {
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <Users className="w-4 h-4 text-indigo-400" />
-                    <span>Max {tournament.maxPlayers} Players</span>
+                    <span>الحد الأقصى {tournament.maxPlayers} لاعبين</span>
                   </div>
                   {tournament.startDate && (
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -64,8 +66,8 @@ export default function Tournaments() {
                 </div>
 
                 <div className="w-full py-3 px-4 rounded-xl bg-white/5 group-hover:bg-primary text-white font-semibold flex items-center justify-between transition-colors">
-                  View Bracket
-                  <ChevronRight className="w-4 h-4" />
+                  عرض المواجهات
+                  <ChevronRight className="w-4 h-4 rotate-180" />
                 </div>
               </div>
             </Link>
