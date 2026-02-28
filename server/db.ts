@@ -4,7 +4,7 @@ import * as schema from "@shared/schema";
 
 const { Pool } = pg;
 
-if (!process.env.DATABASE_URL) {
+if (!process.env.postgresql://postgres:[YOUR-PASSWORD]@db.uetnskxlquhlwwmklwyh.supabase.co:5432/postgres) {
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?",
   );
