@@ -12,7 +12,7 @@ export default function Home() {
         </div>
         
         <h1 className="text-5xl md:text-7xl font-display font-extrabold tracking-tight mb-6">
-          مرحباً بكم في بطولة عصام لـ eFootball <br className="hidden md:block" />
+          مرحباً بكم في بطولة esam لـ e football <br className="hidden md:block" />
           <span className="text-gradient">هل أنت مستعد؟</span>
         </h1>
         
